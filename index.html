@@ -1,56 +1,55 @@
-<!DOCTYPE html>
-<html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neighborhood in Three.js</title>
-    <style>
-        body {
-            margin: 0;
-            overflow: hidden;
-        }
+  <!-- HTML Meta Tags -->
+  <title>Bairro Generator</title>
+  
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
 
-        #dayButton {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            padding: 10px;
-            background-color: #87ceeb;
-            color: #000000;
-            border: none;
-            cursor: pointer;
-        }
+  <!-- the styling that our site uses -->
+  <link rel="stylesheet" href="style.css">
 
-        #nightButton {
-            position: absolute;
-            top: 10px;
-            left: 100px;
-            padding: 10px;
-            background-color: #000000;
-            color: #ffffff;
-            border: none;
-            cursor: pointer;
-        }
 
-    </style>
+  <!-- include the three.js library -->
+  <script type="text/javascript" src="js/vendor/three.js"> </script>
+
+  <!-- include the trackball code -->
+  <script type="text/javascript" src="js/vendor/OrbitControls.js"> </script>
+
+  <!-- include the model loader -->
+  <script type="text/javascript" src="js/vendor/PLYLoader.js"></script>
+
+  <!-- include the FBX loader -->
+  <script type="text/javascript" src="js/vendor/FBXLoader.js"></script>
+
+  <!-- include the GUI -->
+  <script type="text/javascript" src="js/vendor/dat.gui.min.js"></script>
+
+  <!-- include the first person controls -->
+  <script type="text/javascript" src="js/vendor/PointerLockControls.js"></script>
 </head>
 
 <body>
-    <!-- Day and Night Buttons -->
-    <button id="dayButton">Day</button>
-    <button id="nightButton">Night</button>
 
-    <script type="importmap">
-        {
-          "imports": {
-            "three": "https://cdn.jsdelivr.net/npm/three@<version>/build/three.module.js",
-            "three/addons/": "https://cdn.jsdelivr.net/npm/three@<version>/examples/jsm/"
 
-          }
-        }
-    </script>
-    <script type="module" src="js/main.js"></script>
+  <!-- Setup the City Generator -->
+  <script type="text/javascript" src="js/setup.js"></script>
+
+  <!-- Handle user inputs -->
+  <script type="text/javascript" src="js/inputController.js"></script>
+
+  <!-- Generate the city -->
+  <script type="text/javascript" src="js/cityGenerator.js"></script>
+
+  <!-- Handle the Controls GUI -->
+  <script type="text/javascript" src="js/gui.js"></script>
+
+  <!-- Show some stats -->
+  <script type="text/javascript" src="js/stats.js"></script>
+
+  <!-- Add the main logic -->
+  <script type="text/javascript" src="js/main.js"></script>
 </body>
 
 </html>

@@ -9,6 +9,7 @@ export function createTaperedSkyscraper(position, baseWidth, topWidth, height, n
         return null;
     }
 
+
     // Create the skyscraper mesh
     const skyscraper = new THREE.Object3D();
     let currentHeight = 0;
