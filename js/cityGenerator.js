@@ -51,23 +51,55 @@ function AddBuildingBase(x, y, z) {
 
 // Add an 'L' section of road, using specified coordinates, and width of roads going in either direction
 function AddRoads(x, y, z, width) {
-    // Check if there is free space at the current location
-    const freeSpace = !roadLocations.some(loc => loc.x === x && loc.z === z);
+    var freeSpace = true; // if there is a free space at the current location
 
-    if (freeSpace) {
-        // Add this location to the roadLocations array
-        roadLocations.push({ x, z });
+    for (var b = 0; b < roadLocations.length; b++) { // loop through all of the road locations
+        if (roadLocations[b].x == x && roadLocations[b].z == z) { // check if the current x,z coordinate is in the roadLocations array
+            freeSpace = false; // the space as not free
+        }
+    }
 
-        // Add roads along the x-axis of this section
-        for (let w = 0; w < width; w++) {
+    if (freeSpace) { // if this is a free space
+        roadLocations.push({ // add this location to the roadLocations array
+            x,
+            z
+        });
+
+        AddLightPole(x, y, z); // add a light pole to go with the road
+
+        for (var w = 0; w < width; w++) { // add roads along the x axis of this section
             AddSquareRoad((w + x) * roadSize, y, z * roadSize);
         }
 
-        // Add roads along the z-axis of this section
-        for (let q = 0; q < width; q++) {
+        for (var q = 0; q < width; q++) { // add roads along the z axis of this section
             AddSquareRoad(x * roadSize, y, (q + z) * roadSize);
         }
     }
+}
+
+// Add a light pole at the specified coordinates
+function AddLightPole(x, y, z) {
+    var loader = new THREE.ObjectLoader(); // create a loader object to load in our light pole model
+    loader.load('./assets/lightpole/light-pole.json', function (obj) { // load the model
+        var combined = new THREE.Matrix4(); // create a Matrix to combine affects on the model
+        var scale = new THREE.Matrix4(); // the scale of the model
+        scale.makeScale(1, 1, 1); // scale the model to a scale of 1
+        combined.multiply(scale); // add the scale Matrix to the combined Matrix
+
+        var rot = new THREE.Matrix4(); // create a Matrix for the rotation
+        rot.makeRotationY(Math.PI / -2); // rotate around the Y axis to point the light pole towards the road
+        if (Math.round(Math.random()) == 0) { // randomly rotate the pole 90 degrees to create some variation
+            rot.makeRotationY(Math.PI);
+        }
+        combined.multiply(rot); // add the rotation Matrix to the combined Matrix
+
+        obj.applyMatrix(combined); // apply the combined Matrix to the light pole object
+        obj.position.y = y + 11; // align the pole to be on the ground
+        obj.position.x = x * roadSize + 12; // add the pole to an x offset to the road section
+        obj.position.z = z * roadSize + 12; // add the pole to an z offset to the road section
+
+        scene.add(obj); // add the light pole to the scene
+    });
 }
 
 

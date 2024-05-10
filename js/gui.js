@@ -31,7 +31,7 @@ var params = {
             var Pos = new THREE.Vector3(-360, 700, 360);
             camera.position.set(Pos.x, Pos.y, Pos.z);
         } else {
-            var Pos = new THREE.Vector3(0, 4, 13);
+            var Pos = new THREE.Vector3(0, 8, 13);
             camera.position.set(Pos.x, Pos.y, Pos.z);
             camera.rotation.y = 90 * Math.PI / 180;
             keyboardControls.getObject().position.set(0, 4, 13);

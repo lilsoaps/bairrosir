@@ -41,9 +41,7 @@
 
 	if ( 'name' in Function.prototype === false ) {
 
-		// Missing in IE
-		// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/name
-
+z
 		Object.defineProperty( Function.prototype, 'name', {
 
 			get: function () {
@@ -311,10 +309,7 @@
 	var BasicDepthPacking = 3200;
 	var RGBADepthPacking = 3201;
 
-	/**
-	 * @author alteredq / http://alteredqualia.com/
-	 * @author mrdoob / http://mrdoob.com/
-	 */
+
 
 	var _Math = {
 
