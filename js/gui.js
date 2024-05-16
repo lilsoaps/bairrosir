@@ -1,9 +1,10 @@
 
 var gui = new dat.GUI({
-    name: "City Options"
+    name: "Neighborhood Options"
 });
 
 var params = {
+    selected_building: "empty",
 
     light_angle: (Math.PI / 2) + 0.2,
     light_increase_speed: 0,
@@ -109,7 +110,7 @@ genStepsController.onChange(function (val) {
 });
 
 var genBtn = generationFolder.add(params, 'generate');
-genBtn.name("Generate New City");
+genBtn.name("Generate New Neighborhood");
 
 
 //Controller settings, for example whether or not to use first person controls
@@ -118,6 +119,28 @@ controlsFolder.open();
 
 var ctrlBtnFP = controlsFolder.add(params, 'firstPerson');
 ctrlBtnFP.name("First Person Mode");
+
+var buildingFolder = gui.addFolder('Building Options');
+buildingFolder.open();
+
+
+var scalePicker;
+
+function selectCheck() {
+    if (isSelected == true) {
+        var paramcolor = {
+            color: selectedObjectColor
+        };
+        var paramscale = {
+            scale: selectedObjectScale
+        };
+
+        scalePicker = buildingFolder.add(paramscale, 'scale', 0, 100).onChange(function () {
+            selectedObject.scale.y = paramscale.scale;
+        });
+        scalePicker.name("Building Height Scale");
+    }
+}
 
 
 

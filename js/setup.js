@@ -67,7 +67,7 @@ var baseMaterial = new THREE.MeshPhongMaterial({
     side: THREE.DoubleSide
 });
 
-var baseGeometry = new THREE.PlaneGeometry(20000, 20000);
+var baseGeometry = new THREE.PlaneGeometry(5000, 5000);
 var baseMesh = new THREE.Mesh(baseGeometry, baseMaterial);
 baseMesh.rotation.set(Math.PI / 2, 0, 0);
 baseMesh.receiveShadow = true;

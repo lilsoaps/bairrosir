@@ -14,12 +14,68 @@ scene.add(keyboardControls.getObject());
 var raycaster = new THREE.Raycaster();
 var selectedObject = new THREE.Mesh();
 selected_building = selectedObject.name;
-var selectedObjectColor = new THREE.Color();
+
 var selectedObjectScale;
 var isSelected = false;
 
 var windowWidth = window.innerWidth;
 blockedWidth = windowWidth - 245;
+
+function onDocumentMouseDown(event) {
+    switch (event.button) {
+        case 0: //left
+            var mouse = new THREE.Vector2();
+            mouse.x = (event.clientX / renderer.domElement.clientWidth) * 2 - 1;
+            mouse.y = -(event.clientY / renderer.domElement.clientHeight) * 2 + 1;
+            if (event.clientX < blockedWidth) {
+                raycaster.setFromCamera(mouse, camera);
+
+                var intersects = raycaster.intersectObjects(scene.children, false);
+
+                if (intersects.length > 0) {
+                    if ((intersects[0].object.name == "building") && (!isSelected)) {
+                        selectedObject = intersects[0].object;
+
+                        if (selectedObject.material.color[0] === NaN) {
+                            selectedObjectColor = [255, 0, 255];
+                        } else {
+                            selectedObjectColor = [selectedObject.material.color.r * 255, selectedObject.material.color.g * 255, selectedObject.material.color.b * 255];
+                        }
+
+                        selectedObjectScale = selectedObject.scale.y;
+                        isSelected = true;
+                        selectCheck();
+                    }
+                    if ((intersects[0].object.name != "building") && (isSelected)) {
+
+                        isSelected = false;
+
+                        if (buildingFolder !== null) {
+                            buildingFolder.remove(scalePicker);
+                        }
+                    }
+                }
+            }
+            break;
+        case 1: //middle
+            break;
+        case 2: //right
+            var mouse = new THREE.Vector2();
+            mouse.x = (event.clientX / renderer.domElement.clientWidth) * 2 - 1;
+            mouse.y = -(event.clientY / renderer.domElement.clientHeight) * 2 + 1;
+
+            if (isSelected) {
+                isSelected = false;
+
+                if (buildingFolder !== null) {
+                    buildingFolder.remove(scalePicker);
+                }
+            }
+            break;
+    }
+}
+
+document.addEventListener('mousedown', onDocumentMouseDown, false);
 
 
 var onKeyDown = function (event) {
@@ -44,12 +100,12 @@ var onKeyDown = function (event) {
             moveRight = true;
             break;
 
-            // down
+        // down
         case 16: // shift
             moveDown = true;
             break;
 
-            // up 
+        // up 
         case 32: // space
             moveUp = true;
             break;
@@ -78,12 +134,12 @@ var onKeyUp = function (event) {
             moveRight = false;
             break;
 
-            // down
+        // down
         case 16: // shift
             moveDown = false;
             break;
 
-            // up 
+        // up 
         case 32: // space
             moveUp = false;
             break;

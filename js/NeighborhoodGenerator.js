@@ -2,7 +2,7 @@
 var roadSize = 20; // the width of each road
 var roadGeometry = new THREE.PlaneGeometry(roadSize, roadSize); // create a new PlaneGeometry that is square from the road size 
 var roadMaterial = new THREE.MeshPhongMaterial({ // create a new material from an asphalt texture
-    map: new THREE.TextureLoader().load("./assets/road/asphalt.png"),
+    map: new THREE.TextureLoader().load("./assets/road/ee.jpeg"),
     side: THREE.DoubleSide // make it double sided to avoid any rendering issues
 });
 
@@ -10,7 +10,7 @@ var roadMaterial = new THREE.MeshPhongMaterial({ // create a new material from a
 var buildingBaseSize = 80; // the size of each building base
 var buildingBaseGeometry = new THREE.PlaneGeometry(buildingBaseSize, buildingBaseSize); // create a square PlaneGeometry to use as a base under each building
 var buildingBaseMaterial = new THREE.MeshPhongMaterial({ // create a new material from a base texture
-    map: new THREE.TextureLoader().load("./assets/road/building_base.jpg"),
+    map: new THREE.TextureLoader().load("./assets/road/bae.jpg"),
     side: THREE.DoubleSide // make it double sided to avoid any rendering issues
 });
 
@@ -49,59 +49,25 @@ function AddBuildingBase(x, y, z) {
     scene.add(buildingBaseMesh);
 }
 
-// Add an 'L' section of road, using specified coordinates, and width of roads going in either direction
 function AddRoads(x, y, z, width) {
-    var freeSpace = true; // if there is a free space at the current location
-
-    for (var b = 0; b < roadLocations.length; b++) { // loop through all of the road locations
-        if (roadLocations[b].x == x && roadLocations[b].z == z) { // check if the current x,z coordinate is in the roadLocations array
-            freeSpace = false; // the space as not free
-        }
+    // Check if the location is already occupied by a road
+    if (roadLocations.some(location => location.x === x && location.z === z)) {
+        return; // Exit function if the space is not free
     }
 
-    if (freeSpace) { // if this is a free space
-        roadLocations.push({ // add this location to the roadLocations array
-            x,
-            z
-        });
+    // Add the current location to the roadLocations array
+    roadLocations.push({ x, z });
 
-        AddLightPole(x, y, z); // add a light pole to go with the road
+    // Add roads along the x-axis
+    for (let w = 0; w < width; w++) {
+        AddSquareRoad((w + x) * roadSize, y, z * roadSize);
+    }
 
-        for (var w = 0; w < width; w++) { // add roads along the x axis of this section
-            AddSquareRoad((w + x) * roadSize, y, z * roadSize);
-        }
-
-        for (var q = 0; q < width; q++) { // add roads along the z axis of this section
-            AddSquareRoad(x * roadSize, y, (q + z) * roadSize);
-        }
+    // Add roads along the z-axis
+    for (let q = 0; q < width; q++) {
+        AddSquareRoad(x * roadSize, y, (q + z) * roadSize);
     }
 }
-
-// Add a light pole at the specified coordinates
-function AddLightPole(x, y, z) {
-    var loader = new THREE.ObjectLoader(); // create a loader object to load in our light pole model
-    loader.load('./assets/lightpole/light-pole.json', function (obj) { // load the model
-        var combined = new THREE.Matrix4(); // create a Matrix to combine affects on the model
-        var scale = new THREE.Matrix4(); // the scale of the model
-        scale.makeScale(1, 1, 1); // scale the model to a scale of 1
-        combined.multiply(scale); // add the scale Matrix to the combined Matrix
-
-        var rot = new THREE.Matrix4(); // create a Matrix for the rotation
-        rot.makeRotationY(Math.PI / -2); // rotate around the Y axis to point the light pole towards the road
-        if (Math.round(Math.random()) == 0) { // randomly rotate the pole 90 degrees to create some variation
-            rot.makeRotationY(Math.PI);
-        }
-        combined.multiply(rot); // add the rotation Matrix to the combined Matrix
-
-        obj.applyMatrix(combined); // apply the combined Matrix to the light pole object
-        obj.position.y = y + 11; // align the pole to be on the ground
-        obj.position.x = x * roadSize + 12; // add the pole to an x offset to the road section
-        obj.position.z = z * roadSize + 12; // add the pole to an z offset to the road section
-
-        scene.add(obj); // add the light pole to the scene
-    });
-}
-
 
 
 function AddBuilding(startingX, startingZ, randomX, randomZ, stepsLeft) {
@@ -109,7 +75,6 @@ function AddBuilding(startingX, startingZ, randomX, randomZ, stepsLeft) {
     var buildingHeight = 1 + (Math.random() * (stepsLeft / 6));
 
     var buildingX = (startingX + randomX) * 20 * 5;
-    var buildingY = (buildingHeight / 2);
     var buildingZ = (startingZ + randomZ) * 20 * 5;
 
     var freeSpace = true;
@@ -117,24 +82,20 @@ function AddBuilding(startingX, startingZ, randomX, randomZ, stepsLeft) {
     for (var b = 0; b < buildingLocations.length; b++) {
         if (buildingLocations[b].buildingX == buildingX && buildingLocations[b].buildingZ == buildingZ) {
             freeSpace = false;
+            break;
         }
     }
 
     if (freeSpace) {
         buildingLocations.push({
-            buildingX,
-            buildingZ
+            buildingX: buildingX,
+            buildingZ: buildingZ
         });
 
         var randBuilding = Math.floor((Math.random() * 100) + 1);
-        var baseColor = 0.19 + (Math.random() * 0.81);
 
-        if (randBuilding < 75) { // 75% of the time a tall building will be chosen
-
+        if (randBuilding < 75) {
             var isWideRand = Math.floor(Math.random() * 30) + 1;
-
-            var wideBuildingWidth = 0;
-            var wideBuildingDepth = 0;
 
             if (isWideRand < 5) {
                 var freeSpaceAdj = true;
@@ -142,16 +103,15 @@ function AddBuilding(startingX, startingZ, randomX, randomZ, stepsLeft) {
                 for (var b = 0; b < buildingLocations.length; b++) {
                     if (buildingLocations[b].buildingX == buildingX + 100 && buildingLocations[b].buildingZ == buildingZ) {
                         freeSpaceAdj = false;
+                        break;
                     }
                 }
 
                 if (freeSpaceAdj) {
-                    wideBuildingWidth = buildingWidth;
                     buildingX += 100;
-
                     buildingLocations.push({
-                        buildingX,
-                        buildingZ
+                        buildingX: buildingX,
+                        buildingZ: buildingZ
                     });
                     buildingX -= 50;
                 }
@@ -165,16 +125,15 @@ function AddBuilding(startingX, startingZ, randomX, randomZ, stepsLeft) {
                 for (var b = 0; b < buildingLocations.length; b++) {
                     if (buildingLocations[b].buildingZ == buildingZ + 100 && buildingLocations[b].buildingX == buildingX) {
                         freeSpaceAdj = false;
+                        break;
                     }
                 }
 
                 if (freeSpaceAdj) {
-                    wideBuildingDepth = buildingWidth;
                     buildingZ += 100;
-
                     buildingLocations.push({
-                        buildingX,
-                        buildingZ
+                        buildingX: buildingX,
+                        buildingZ: buildingZ
                     });
                     buildingZ -= 50;
                 }
@@ -186,6 +145,8 @@ function AddBuilding(startingX, startingZ, randomX, randomZ, stepsLeft) {
                 AddBuildingBase(buildingX, 1.0084, buildingZ);
             }
 
+            var wideBuildingWidth = (isWideRand < 5) ? buildingWidth : 0;
+            var wideBuildingDepth = (isWideRand > 25) ? buildingWidth : 0;
 
             AddBuild(
                 Math.floor((Math.random() * 8) + 1),
@@ -193,10 +154,10 @@ function AddBuilding(startingX, startingZ, randomX, randomZ, stepsLeft) {
                 buildingHeight,
                 buildingWidth + wideBuildingDepth,
                 buildingX,
-                buildingY,
+                buildingHeight / 2,
                 buildingZ
             );
-        } else { // don't make a smaller building double width
+        } else {
             AddBuildingBase(buildingX, 1.0084, buildingZ);
             AddBuild(
                 Math.floor((Math.random() * 5) + 9),
@@ -204,80 +165,80 @@ function AddBuilding(startingX, startingZ, randomX, randomZ, stepsLeft) {
                 buildingHeight,
                 buildingWidth,
                 buildingX,
-                buildingY,
+                buildingHeight / 2,
                 buildingZ
             );
         }
     }
 }
 
-// Add a building, with parameters: name of model, red, blue, green, width, height, depth, x translation, y translation, z translation
+
 function AddBuild(model, width, height, depth, xTra, yTra, zTra) {
-    var loader = new THREE.PLYLoader();
-    var mesh = null;
-    loader.load('assets/building_models/b' + model + '.ply', function (geometry) {
-        var material = new THREE.MeshPhongMaterial();
-        material.TextureLoader = new THREE.TextureLoader().load("assets/bulding_textures/t" + model + ".png");
-        material.map = material.TextureLoader;
-        material.shading = THREE.SmoothShading;
-        material.shininess = 50;
+    const loader = new THREE.PLYLoader();
+    let mesh = null;
+    loader.load(`assets/building_models/b${model}.ply`, function (geometry) {
+        const material = new THREE.MeshPhongMaterial({
+            map: new THREE.TextureLoader().load(`assets/bulding_textures/t${model}.png`),
+            shading: THREE.SmoothShading,
+            shininess: 50
+        });
+
         geometry.computeVertexNormals();
         mesh = new THREE.Mesh(geometry, material);
         mesh.name = "building";
 
         geometry.computeBoundingBox();
+        const size = geometry.boundingBox.getSize();
 
-        var size = geometry.boundingBox.getSize();
-        var sca = new THREE.Matrix4();
-        var combined = new THREE.Matrix4();
-        if (model > 8) {
-            sca.makeScale(4 * size.length() * width, 4 * size.length() * height, 4 * size.length() * depth);
-        } else {
-            sca.makeScale(2 * size.length() * width, 2 * size.length() * height, 2 * size.length() * depth);
-        }
+        const sca = new THREE.Matrix4();
+        const combined = new THREE.Matrix4();
+
+        const scaleFactor = (model > 8) ? 4 : 2;
+        sca.makeScale(scaleFactor * size.length() * width, scaleFactor * size.length() * height, scaleFactor * size.length() * depth);
+
         combined.multiply(sca);
         mesh.applyMatrix(combined);
         mesh.castShadow = true;
         mesh.receiveShadow = true;
-        mesh.position.x = xTra;
-        mesh.position.y = yTra;
-        mesh.position.z = zTra;
+        mesh.position.set(xTra, yTra, zTra);
 
         scene.add(mesh);
     });
 }
 
+
 // A recursive Random Walk algorithm, with a specified starting X and Z coordinate, and the remaining number of times to recursively call
 // This adds all of the buildings and roads to our city
 function RandomWalk(startingX, startingZ, stepsLeft) {
-    var randomRoadCoords = [ // the 4 potential coordinates for a road to be placed 
+    const randomDirectionIndex = Math.floor(Math.random() * 4);
+    const randomRoadCoords = [
         [0, 1],
         [0, -1],
         [-1, 0],
         [1, 0]
-    ][Math.random() * 4 | 0]; // randomly choose one of the 4 coordinates
+    ][randomDirectionIndex]; // randomly choose one of the 4 coordinates for road placement
 
-    var newX = startingX + randomRoadCoords[0]; // get the x coord of the randomly chosen coordinate
-    var newZ = startingZ + randomRoadCoords[1]; // get the z coord of the randomly chosen coordinate
+    const newX = startingX + randomRoadCoords[0]; // get the x coordinate of the randomly chosen direction
+    const newZ = startingZ + randomRoadCoords[1]; // get the z coordinate of the randomly chosen direction
 
     AddRoads(newX * 5, 1, newZ * 5, 5); // Add a section of road at the randomly chosen offset
 
-
-    var randomBuildingCoords = [ // the 4 potential coordinates for a building to be placed
+    const randomBuildingIndex = Math.floor(Math.random() * 4);
+    const randomBuildingCoords = [
         [0.5, 0.5],
         [0.5, -0.5],
         [-0.5, 0.5],
         [-0.5, -0.5]
-    ][Math.random() * 4 | 0]; // randomly choose one of the 4 coordinates
+    ][randomBuildingIndex]; // randomly choose one of the 4 coordinates for building placement
 
     AddBuilding(startingX, startingZ, randomBuildingCoords[0], randomBuildingCoords[1], stepsLeft); // Add a building at the randomly chosen offset
 
-
-    var newStepsLeft = stepsLeft - 1; // decrement the amount of times left to recursively call
+    const newStepsLeft = stepsLeft - 1; // decrement the amount of steps left
     if (newStepsLeft > 0) { // if there are still steps left to go
-        RandomWalk(newX, newZ, newStepsLeft); // call this method again
+        RandomWalk(newX, newZ, newStepsLeft); // call this method again with the new coordinates
     }
 }
+
 
 // Generate the city, running the Random Walk algorithm a specified amount of times 
 function GenerateCity(steps) {
